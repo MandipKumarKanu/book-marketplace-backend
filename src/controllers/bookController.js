@@ -196,7 +196,6 @@ exports.purchaseBook = async (req, res) => {
         .json({ error: "Book is not available for purchase" });
     }
 
-    // Update book status and assign buyer
     book.status = "sold";
     book.buyer = userId;
     await book.save();
@@ -217,20 +216,18 @@ exports.checkoutWithESEWA = async (req, res) => {
     }
 
     const transactionId = crypto.randomBytes(16).toString("hex");
-    const totalAmount = book.offeredPrice; // Amount in NPR
+    const totalAmount = book.offeredPrice; 
 
-    // eSewa payment request
     const paymentData = {
       amount: totalAmount,
       type: "M",
       productName: `Purchase of ${book.title}`,
-      phoneNumber: req.user.phoneNumber, // User's phone number for eSewa
-      email: req.user.email, // User's email (optional)
+      phoneNumber: req.user.phoneNumber,
+      email: req.user.email,
       orderId: transactionId,
       callbackUrl: `${process.env.ESEWA_CALLBACK_URL}?orderId=${transactionId}`,
     };
 
-    // Redirect to eSewa for payment
     res.json({ paymentData });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -256,6 +253,77 @@ exports.handleESEWACallback = async (req, res) => {
     } else {
       res.status(400).json({ error: "Payment failed" });
     }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.getByPageAndLimit = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
+
+    const books = await Book.find()
+      .populate("owner", "username email")
+      .skip(skip)
+      .limit(limit);
+
+    const totalBooks = await Book.countDocuments();
+
+    res.json({
+      books,
+      currentPage: page,
+      totalPages: Math.ceil(totalBooks / limit),
+      totalBooks,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.advSearchBooks = async (req, res) => {
+  try {
+    const { title, author, isbn, genre, condition, minPrice, maxPrice, tags } =
+      req.query;
+    const searchCriteria = {};
+
+    if (title) {
+      searchCriteria.title = { $regex: title, $options: "i" };
+    }
+    if (author) {
+      searchCriteria.author = { $regex: author, $options: "i" };
+    }
+    if (isbn) {
+      searchCriteria.isbn = { $regex: isbn, $options: "i" };
+    }
+    if (genre) {
+      searchCriteria.genre = genre;
+    }
+    if (condition) {
+      searchCriteria.condition = condition;
+    }
+    if (minPrice) {
+      searchCriteria.offeredPrice = {
+        ...searchCriteria.offeredPrice,
+        $gte: minPrice,
+      };
+    }
+    if (maxPrice) {
+      searchCriteria.offeredPrice = {
+        ...searchCriteria.offeredPrice,
+        $lte: maxPrice,
+      };
+    }
+    if (tags) {
+      searchCriteria.tags = { $in: tags.split(",") };
+    }
+
+    const books = await Book.find(searchCriteria).populate(
+      "owner",
+      "username email"
+    );
+    res.json(books);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

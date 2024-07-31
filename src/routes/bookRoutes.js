@@ -6,7 +6,9 @@ const upload = require("../middleware/upload");
 const router = express.Router();
 
 router.get("/search", bookController.searchBooks);
-router.post('/purchase/:id', auth, bookController.purchaseBook);
+router.get("/advsearch", bookController.advSearchBooks);
+router.get("/getbylim", auth, bookController.getByPageAndLimit);
+router.post("/purchase/:id", auth, bookController.purchaseBook);
 router.post("/", auth, upload.array("images", 5), bookController.createBook);
 router.get("/", bookController.getAllBooks);
 router.get("/:id", bookController.getBookById);

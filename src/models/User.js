@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema(
     profilePicture: String,
     purchasedBooks: [{ type: mongoose.Schema.Types.ObjectId, ref: "Book" }],
     refreshToken: String,
+    badges: [{ type: mongoose.Schema.Types.ObjectId, ref: "Badge" }]
   },
   { timestamps: true }
 );

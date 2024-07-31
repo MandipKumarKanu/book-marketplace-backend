@@ -1,0 +1,92 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+const Filters = ({ onFilterChange }) => {
+  const [filters, setFilters] = useState({
+    title: '',
+    author: '',
+    isbn: '',
+    genre: '',
+    condition: '',
+    minPrice: '',
+    maxPrice: '',
+    tags: '',
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFilters({ ...filters, [name]: value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onFilterChange(filters);
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input name="title" placeholder="Title" onChange={handleInputChange} />
+      <input name="author" placeholder="Author" onChange={handleInputChange} />
+      <input name="isbn" placeholder="ISBN" onChange={handleInputChange} />
+      <input name="genre" placeholder="Genre" onChange={handleInputChange} />
+      <select name="condition" onChange={handleInputChange}>
+        <option value="">Condition</option>
+        <option value="new">New</option>
+        <option value="like new">Like New</option>
+        <option value="used">Used</option>
+        <option value="poor">Poor</option>
+      </select>
+      <input name="minPrice" placeholder="Min Price" type="number" onChange={handleInputChange} />
+      <input name="maxPrice" placeholder="Max Price" type="number" onChange={handleInputChange} />
+      <input name="tags" placeholder="Tags (comma separated)" onChange={handleInputChange} />
+      <button type="submit">Filter</button>
+    </form>
+  );
+};
+
+export default Filters;
+
+
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import Filters from './Filters';
+
+const BookList = () => {
+  const [books, setBooks] = useState([]);
+
+  const fetchBooks = async (filters = {}) => {
+    try {
+      const response = await axios.get('/api/books/search', { params: filters });
+      setBooks(response.data);
+    } catch (error) {
+      console.error('Error fetching books:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchBooks();
+  }, []);
+
+  const handleFilterChange = (filters) => {
+    fetchBooks(filters);
+  };
+
+  return (
+    <div>
+      <Filters onFilterChange={handleFilterChange} />
+      <div>
+        {books.map((book) => (
+          <div key={book._id}>
+            <h3>{book.title}</h3>
+            <p>{book.author}</p>
+            <p>{book.genre}</p>
+            <p>{book.condition}</p>
+            <p>{book.offeredPrice}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default BookList;
