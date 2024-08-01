@@ -5,10 +5,10 @@ const uploadProfile = require("../middleware/upload");
 
 const generateTokens = (userId) => {
   const accessToken = jwt.sign({ userId }, process.env.JWT_ACCESS_SECRET, {
-    expiresIn: "7d"
+    expiresIn: "7d",
   });
   const refreshToken = jwt.sign({ userId }, process.env.JWT_REFRESH_SECRET, {
-    expiresIn: "30d", 
+    expiresIn: "30d",
   });
   return { accessToken, refreshToken };
 };
@@ -77,13 +77,14 @@ exports.refreshToken = async (req, res) => {
 
     res.cookie("refreshToken", newRefreshToken, {
       httpOnly: true,
-      secure: false, 
+      secure: false,
       sameSite: "Strict",
     });
 
     res.json({
       accessToken: accessToken,
-      refreshToken: newRefreshToken,  });
+      refreshToken: newRefreshToken,
+    });
   } catch (error) {
     res.status(401).json({ error: "Invalid refresh token" });
   }

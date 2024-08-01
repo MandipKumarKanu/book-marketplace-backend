@@ -15,30 +15,37 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 const corsOptions = {
-  origin: "*",
-  credentials: true,
+  origin: 'http://localhost:5173', // Replace with your client origin
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  allowedHeaders: 'Content-Type,Authorization',
+  credentials: true // Allow credentials (cookies, authorization headers, etc.)
 };
 
 app.use(cors(corsOptions));
+
 
 mongoose
   .connect(process.env.MONGODB_URI)
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
+app.get("/", (req, res) => {
+  res.send("Hi, there!!!");
+});
+
 // Routes
-const userRoutes = require("./routes/userRoutes");
-const bookRoutes = require("./routes/bookRoutes");
-const cartRoutes = require("./routes/cartRoutes");
-const wishlistRoutes = require("./routes/wishlistRoutes");
-const analyticsRoutes = require("./routes/analyticsRoutes");
-const categoryRoutes = require("./routes/categoryRoutes");
-const messageRoutes = require("./routes/messageRoutes");
-const inventoryRoutes = require("./routes/inventoryRoutes");
-const recommendationsRoute = require("./routes/recommendationsRoute");
-const reviewsRoutes = require("./routes/reviewsRoutes");
-const feedBackRoutes = require("./routes/feedbackRoutes");
-const badgesRoute = require("./routes/badgesRoute");
+const userRoutes = require("./src/routes/userRoutes");
+const bookRoutes = require("./src/routes/bookRoutes");
+const cartRoutes = require("./src/routes/cartRoutes");
+const wishlistRoutes = require("./src/routes/wishlistRoutes");
+const analyticsRoutes = require("./src/routes/analyticsRoutes");
+const categoryRoutes = require("./src/routes/categoryRoutes");
+const messageRoutes = require("./src/routes/messageRoutes");
+const inventoryRoutes = require("./src/routes/inventoryRoutes");
+const recommendationsRoute = require("./src/routes/recommendationsRoute");
+const reviewsRoutes = require("./src/routes/reviewsRoutes");
+const feedBackRoutes = require("./src/routes/feedbackRoutes");
+const badgesRoute = require("./src/routes/badgesRoute");
 
 app.use("/api/users", userRoutes);
 app.use("/api/books", bookRoutes);
