@@ -15,14 +15,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 const corsOptions = {
-  origin: 'http://localhost:5173', // Replace with your client origin
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  allowedHeaders: 'Content-Type,Authorization',
-  credentials: true // Allow credentials (cookies, authorization headers, etc.)
+  origin: "*",
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  allowedHeaders: "Content-Type, Authorization",
+  credentials: true,
 };
 
 app.use(cors(corsOptions));
-
 
 mongoose
   .connect(process.env.MONGODB_URI)

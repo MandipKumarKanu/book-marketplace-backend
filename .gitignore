@@ -90,3 +90,6 @@ const BookList = () => {
 };
 
 export default BookList;
+
+.env
+node_modules
